@@ -1,4 +1,4 @@
-// scripts/week-number.js
+// js/week-number.js
 
 // Function to calculate the current week number based on the user's local system clock
 function getWeekNumber(date) {
@@ -38,32 +38,13 @@ function getQueryParams() {
             weekNumber: weekNumber,
             dateTime: dateTime
         };
-        // Set content type to JSON (this will not change the actual content type due to static hosting limitations)
+        // Clear the document and output JSON
         document.head.innerHTML = '';
         document.body.innerHTML = '<pre id="json"></pre>';
         document.getElementById('json').textContent = JSON.stringify(jsonResponse, null, 4);
     } else {
-        // Fetch the Handlebars template
-        fetch('templates/week-template.html')
-            .then(response => response.text())
-            .then(templateSource => {
-                // Compile the template
-                const template = Handlebars.compile(templateSource);
-
-                // Prepare the data object
-                const data = {
-                    weekNumber: weekNumber,
-                    dateTime: dateTime
-                };
-
-                // Generate the HTML with the data
-                const html = template(data);
-
-                // Insert the generated HTML into the page
-                document.getElementById('content').innerHTML = html;
-            })
-            .catch(error => {
-                console.error('Error loading template:', error);
-            });
+        // Display week number and date/time in the HTML elements
+        document.getElementById('week-number').textContent = weekNumber;
+        document.getElementById('date-time').textContent = dateTime;
     }
 })();
