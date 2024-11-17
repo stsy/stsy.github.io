@@ -2,14 +2,14 @@
 const data = {
     title: "Links",
     links: [
-        { name: "Week number", url: "/week.htm" },
+        { name: "Week number", url: "/week.html" },
         { name: "Link 2", url: "#" },
         { name: "Link 3", url: "#" },
     ]
 };
 
 // Fetch the Handlebars template
-fetch('templates/links.htm')
+fetch('templates/links.html')
     .then(response => response.text())
     .then(templateSource => {
         // Compile the template
