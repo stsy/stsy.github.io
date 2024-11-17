@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>API Documentation - Week Number Tool</title>
+    <!-- Include Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
+    <!-- Include CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>API Documentation</h1>
+        <p>This API provides the current week number and date/time based on the user's local system clock.</p>
+        
+        <h2>Endpoint</h2>
+        <pre><code>GET https://yourusername.github.io/week-number.html?format=json</code></pre>
+
+        <h2>Response</h2>
+        <p>The response is a JSON object with the following structure:</p>
+        <pre><code>{
+    "weekNumber": &lt;Number&gt;,
+    "dateTime": "&lt;String&gt;"
+}</code></pre>
+
+        <h3>Example Response</h3>
+        <pre><code>{
+    "weekNumber": 42,
+    "dateTime": "10/17/2023, 3:24:15 PM"
+}</code></pre>
+
+        <h2>Usage</h2>
+        <p>To get the current week number in JSON format, make a GET request to the endpoint above.</p>
+
+        <h2>Notes</h2>
+        <ul>
+            <li>The week number is calculated based on the ISO 8601 standard.</li>
+            <li>The date and time are based on the user's local system clock.</li>
+            <li>As this is a static site, the <code>Content-Type</code> header is not set to <code>application/json</code>.</li>
+        </ul>
+
+        <p><a href="index.html">← Back</a></p>
+    </div>
+</body>
+</html>
