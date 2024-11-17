@@ -1,7 +1,7 @@
 body {
     background-color: #2E3440;
     color: #D8DEE9; 
-    font-family: 'Fira Code', monospace; 
+    font-family: 'Source Code Pro', monospace;
     margin: 0;
     padding: 0;
 }
@@ -14,7 +14,7 @@ body {
 }
 
 h1 {
-    font-size: 3em;
+    font-size: 2em;
     margin-bottom: 50px;
 }
 
@@ -30,7 +30,7 @@ li {
 a {
     color: #88C0D0;
     text-decoration: none;
-    font-size: 1.5em;
+    font-size: 1em;
 }
 
 a:hover {
