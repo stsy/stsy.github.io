@@ -11,7 +11,7 @@ function getWeekNumber(date) {
 }
 
 // Fetch the Handlebars template
-fetch('templates/week-number-template.html')
+fetch('templates/week-template.html')
     .then(response => response.text())
     .then(templateSource => {
         const template = Handlebars.compile(templateSource);
