@@ -36,3 +36,13 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+.container a {
+    color: #88C0D0;
+    text-decoration: none;
+    font-size: 1em;
+}
+
+.container a:hover {
+    text-decoration: underline;
+}

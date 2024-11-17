@@ -2,7 +2,7 @@
 const data = {
     title: "Links",
     links: [
-        { name: "Week number", url: "/week.html" },
+        { name: "Week number", url: "week-number.html" },
         { name: "Link 2", url: "#" },
         { name: "Link 3", url: "#" },
     ]
