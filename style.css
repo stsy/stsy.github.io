@@ -1,68 +1,48 @@
-/* styles.css */
-
-/* General Styles */
 body {
-    background-color: #2E3440; /* Dark mellow background */
-    color: #D8DEE9;            /* Light text color */
+    background-color: #2E3440;
+    color: #D8DEE9; 
     font-family: 'Source Code Pro', monospace;
     margin: 0;
     padding: 0;
 }
 
-/* Container Styles */
 .container {
     max-width: 800px;
-    margin: 0 auto;
+    margin: 0 auto; 
+    text-align: center;
     padding: 100px 20px;
-    /* Removed text-align: center; */
 }
 
-/* Centered Headings */
-.container h1,
-.container h2,
-.container h3 {
-    text-align: center;
+h1 {
+    font-size: 2em;
+    margin-bottom: 50px;
 }
 
-/* Centered List in Index Page */
-.homepage-list {
-    text-align: center;
-}
-
-/* Paragraph Styles */
-.container p {
-    font-size: 1.2em;
-    /* Ensure paragraphs are left-aligned */
-    text-align: left;
-}
-
-/* Code Block Styles */
-pre {
-    background-color: #3B4252;
-    padding: 15px;
-    overflow-x: auto;
-    color: #D8DEE9;
-    text-align: left; /* Left-align code blocks */
-}
-
-code {
-    color: #EBCB8B;
-    font-family: 'Source Code Pro', monospace;
-    font-size: 1em;
-}
-
-/* List Styles */
-.container ul {
+ul {
     list-style-type: none;
     padding: 0;
-    text-align: left; /* Left-align lists */
 }
 
-.container li {
+li {
     margin: 20px 0;
 }
 
-/* Link Styles */
+a {
+    color: #88C0D0;
+    text-decoration: none;
+    font-size: 1em;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 .container a {
     color: #88C0D0;
-    t
+    text-decoration: none;
+    font-size: 1em;
+}
+
+.container a:hover {
+    text-decoration: underline;
+}
