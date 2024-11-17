@@ -9,7 +9,7 @@ const data = {
 };
 
 // Fetch the Handlebars template
-fetch('templates/links.html')
+fetch('templates/links-template.html')
     .then(response => response.text())
     .then(templateSource => {
         // Compile the template
