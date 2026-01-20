@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kana Campfire</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, #1e1e2e, #2b2b45);
+      color: #f5f5f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      padding: 24px;
+    }
+
+    .card {
+      background: #2f3050;
+      border-radius: 20px;
+      padding: 40px 20px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .hiragana {
+      font-size: 96px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 70%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      font-size: 18px;
+      text-align: center;
+      outline: none;
+      background: #1f2038;
+      color: #fff;
+    }
+
+    .streak {
+      margin-top: 16px;
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      font-size: 18px;
+      min-height: 24px;
+    }
+
+    .correct { color: #7CFF9B; }
+    .wrong { color: #FF7C7C; }
+
+    footer {
+      margin-top: 24px;
+      text-align: center;
+      opacity: 0.6;
+      font-size: 12px;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.7;
+      margin-bottom: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1 class="title">Kana Campfire</h1>
+    <p class="subtitle">Hiragana Practice</p>
+    <div class="card">
+      <div class="hiragana" id="hiragana">あ</div>
+      <input id="answer" placeholder="Type romaji" autofocus />
+      <div class="feedback" id="feedback"></div>
+      <div class="streak">🔥 <span id="streak">0</span></div>
+    </div>
+    <footer>Kana Campfire</footer>
+  </div>
+
+  <script>
+    const cards = [
+      { kana: 'あ', romaji: 'a' }, { kana: 'い', romaji: 'i' }, { kana: 'う', romaji: 'u' }, { kana: 'え', romaji: 'e' }, { kana: 'お', romaji: 'o' },
+      { kana: 'か', romaji: 'ka' }, { kana: 'き', romaji: 'ki' }, { kana: 'く', romaji: 'ku' }, { kana: 'け', romaji: 'ke' }, { kana: 'こ', romaji: 'ko' },
+      { kana: 'さ', romaji: 'sa' }, { kana: 'し', romaji: 'shi' }, { kana: 'す', romaji: 'su' }, { kana: 'せ', romaji: 'se' }, { kana: 'そ', romaji: 'so' },
+      { kana: 'た', romaji: 'ta' }, { kana: 'ち', romaji: 'chi' }, { kana: 'つ', romaji: 'tsu' }, { kana: 'て', romaji: 'te' }, { kana: 'と', romaji: 'to' },
+      { kana: 'な', romaji: 'na' }, { kana: 'に', romaji: 'ni' }, { kana: 'ぬ', romaji: 'nu' }, { kana: 'ね', romaji: 'ne' }, { kana: 'の', romaji: 'no' },
+      { kana: 'は', romaji: 'ha' }, { kana: 'ひ', romaji: 'hi' }, { kana: 'ふ', romaji: 'fu' }, { kana: 'へ', romaji: 'he' }, { kana: 'ほ', romaji: 'ho' },
+      { kana: 'ま', romaji: 'ma' }, { kana: 'み', romaji: 'mi' }, { kana: 'む', romaji: 'mu' }, { kana: 'め', romaji: 'me' }, { kana: 'も', romaji: 'mo' },
+      { kana: 'や', romaji: 'ya' }, { kana: 'ゆ', romaji: 'yu' }, { kana: 'よ', romaji: 'yo' },
+      { kana: 'ら', romaji: 'ra' }, { kana: 'り', romaji: 'ri' }, { kana: 'る', romaji: 'ru' }, { kana: 'れ', romaji: 're' }, { kana: 'ろ', romaji: 'ro' },
+      { kana: 'わ', romaji: 'wa' }, { kana: 'を', romaji: 'wo' }, { kana: 'ん', romaji: 'n' }
+    ];
+
+    let current = null;
+    let streak = 0;
+
+    const hiraganaEl = document.getElementById('hiragana');
+    const input = document.getElementById('answer');
+    const feedback = document.getElementById('feedback');
+    const streakEl = document.getElementById('streak');
+
+    function pickCard() {
+      current = cards[Math.floor(Math.random() * cards.length)];
+      hiraganaEl.textContent = current.kana;
+      input.value = '';
+      input.focus();
+    }
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        checkAnswer();
+      }
+    });
+
+    function checkAnswer() {
+      const val = input.value.trim().toLowerCase();
+      if (!val) return;
+
+      if (val === current.romaji) {
+        streak++;
+        feedback.textContent = '✓';
+        feedback.className = 'feedback correct';
+        navigator.vibrate?.(40);
+      } else {
+        streak = 0;
+        feedback.textContent = `✗ Riktig: "${current.romaji}"`;
+        feedback.className = 'feedback wrong';
+        navigator.vibrate?.([100, 40, 100]);
+      }
+
+      streakEl.textContent = streak;
+      setTimeout(() => {
+        feedback.textContent = '';
+        pickCard();
+      }, 900);
+    }
+
+    pickCard();
+  </script>
+</body>
+</html>
