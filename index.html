@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kana Campfire</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
     body {
       margin: 0;
@@ -16,39 +21,33 @@
       height: 100vh;
     }
 
-    .app {
-      width: 100%;
-      max-width: 420px;
-      padding: 24px;
+    .app { max-width: 420px; padding: 24px; width: 100%; }
+
+    .title { text-align: center; font-size: 28px; margin-bottom: 6px; }
+    .subtitle { text-align: center; font-size: 14px; opacity: 0.7; margin-bottom: 12px; }
+
+    .mode-toggle { display: flex; justify-content: center; gap: 8px; margin-bottom: 18px; }
+    .mode-toggle button {
+      background: #1f2038; color: #f5f5f7; border: none;
+      padding: 6px 12px; border-radius: 999px; font-size: 13px; opacity: 0.6;
     }
+    .mode-toggle button.active { opacity: 1; background: #35365f; }
 
     .card {
-      background: #2f3050;
-      border-radius: 20px;
-      padding: 40px 20px;
-      text-align: center;
+      background: #2f3050; border-radius: 20px; padding: 40px 20px;
+      text-align: center; position: relative; overflow: hidden;
       box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-      position: relative;
-      overflow: hidden;
     }
 
     .hiragana {
-      font-size: 96px;
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 2;
+      font-family: "Noto Sans JP", system-ui, sans-serif;
+      font-size: 96px; margin-bottom: 20px; position: relative; z-index: 2;
     }
 
     .flame-bg {
-      position: absolute;
-      top: 42%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(1);
-      font-size: 140px;
-      opacity: 0.18;
-      pointer-events: none;
-      z-index: 1;
-      filter: blur(1px);
+      position: absolute; top: 42%; left: 50%;
+      transform: translate(-50%, -50%); font-size: 140px;
+      opacity: 0.18; pointer-events: none; z-index: 1;
       animation: flameIdle 2.8s ease-in-out infinite;
     }
 
@@ -64,179 +63,128 @@
       100% { transform: translate(-50%, -50%) scale(1); }
     }
 
-    .flame-pulse {
-      animation: flamePulse 0.35s ease-out;
-    }
+    .flame-pulse { animation: flamePulse 0.35s ease-out; }
 
     input {
-      width: 4ch;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: none;
-      font-size: 20px;
-      text-align: center;
-      outline: none;
-      background: #1f2038;
-      color: #fff;
-      margin: 0 auto;
-      display: block;
+      width: 4ch; padding: 10px 12px; border-radius: 10px; border: none;
+      font-size: 20px; text-align: center; background: #1f2038; color: #fff;
+      margin: 0 auto; display: block; outline: none;
     }
 
-    .streak {
-      margin-top: 18px;
-      font-size: 17px;
-      font-weight: 600;
-      letter-spacing: 0.4px;
-      opacity: 0.95;
+    .streak { margin-top: 18px; font-size: 17px; font-weight: 600; }
+
+    .hint {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-family: "Noto Sans JP", system-ui, sans-serif;
+      font-size: 48px; opacity: 0; pointer-events: none;
+      z-index: 0;
     }
 
-    .streak span {
-      font-weight: 700;
+    .hint.red { color: rgba(255, 80, 80, 0.55); }
+    .hint.green { color: rgba(120, 255, 160, 0.45); }
+
+    @keyframes hintFade {
+      0% { opacity: 0; transform: translateY(6px); }
+      20% { opacity: 0.35; transform: translateY(0); }
+      80% { opacity: 0.35; }
+      100% { opacity: 0; transform: translateY(-4px); }
     }
 
-    .feedback {
-      margin-top: 12px;
-      font-size: 18px;
-      min-height: 24px;
-    }
-
-    .correct { color: #7CFF9B; }
-    .wrong { color: #FF7C7C; }
-
-    footer {
-      margin-top: 24px;
-      text-align: center;
-      opacity: 0.6;
-      font-size: 12px;
-    }
-
-    .title {
-      text-align: center;
-      font-size: 28px;
-      margin-bottom: 6px;
-      letter-spacing: 0.5px;
-    }
-
-    .subtitle {
-      text-align: center;
-      font-size: 14px;
-      opacity: 0.7;
-      margin-bottom: 18px;
-    }
+    footer { margin-top: 24px; text-align: center; opacity: 0.6; font-size: 12px; }
   </style>
 </head>
 <body>
   <div class="app">
-    <h1 class="title">Kana Campfire</h1>
-    <p class="subtitle">Hiragana Practice</p>
+    
+
+    <div class="mode-toggle">
+      <button id="hiraganaBtn" class="active">Hiragana</button>
+      <button id="katakanaBtn">Katakana</button>
+    </div>
 
     <div class="card">
       <div class="flame-bg" id="flameBg">🔥</div>
-      <div class="hiragana" id="hiragana">あ</div>
+      <div class="hiragana" id="kana">あ</div>
+      <div class="hint" id="hint"></div>
 
-      <input
-        id="answer"
-        autofocus
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="none"
-        spellcheck="false"
-        inputmode="latin"
-        maxlength="3"
-      />
+      <input id="answer" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="latin" maxlength="3" />
 
-      <div class="feedback" id="feedback"></div>
       <div class="streak">Streak: <span id="streak">0</span> · Best: <span id="best">0</span></div>
     </div>
 
-    <footer>· Kana Campfire ·</footer>
+    <footer id="footer">· Kana Campfire · Hiragana Practice</footer>
   </div>
 
   <script>
-    function updateFlames(streak, decay = 0) {
-      const flame = document.getElementById('flameBg');
-      const baseScale = 1 + Math.min(streak, 12) * 0.12;
-      const scale = Math.max(0.6, baseScale - decay);
-
-      flame.style.transform = `translate(-50%, -50%) scale(${scale})`;
-      flame.style.opacity = Math.max(
-        0.05,
-        Math.min(0.18 + streak * 0.02 - decay * 0.2, 0.45)
-      );
-      flame.style.filter = `blur(${Math.max(0, 2 - streak * 0.1)}px)`;
-
-      if (scale <= 0.65 && streak > 0) {
-        streakEl.textContent = 0;
-      }
-    }
-
-    const cards = [
-      { kana: 'あ', romaji: 'a' }, { kana: 'い', romaji: 'i' }, { kana: 'う', romaji: 'u' }, { kana: 'え', romaji: 'e' }, { kana: 'お', romaji: 'o' },
-      { kana: 'か', romaji: 'ka' }, { kana: 'き', romaji: 'ki' }, { kana: 'く', romaji: 'ku' }, { kana: 'け', romaji: 'ke' }, { kana: 'こ', romaji: 'ko' },
-      { kana: 'さ', romaji: 'sa' }, { kana: 'し', romaji: 'shi' }, { kana: 'す', romaji: 'su' }, { kana: 'せ', romaji: 'se' }, { kana: 'そ', romaji: 'so' },
-      { kana: 'た', romaji: 'ta' }, { kana: 'ち', romaji: 'chi' }, { kana: 'つ', romaji: 'tsu' }, { kana: 'て', romaji: 'te' }, { kana: 'と', romaji: 'to' },
-      { kana: 'な', romaji: 'na' }, { kana: 'に', romaji: 'ni' }, { kana: 'ぬ', romaji: 'nu' }, { kana: 'ね', romaji: 'ne' }, { kana: 'の', romaji: 'no' },
-      { kana: 'は', romaji: 'ha' }, { kana: 'ひ', romaji: 'hi' }, { kana: 'ふ', romaji: 'fu' }, { kana: 'へ', romaji: 'he' }, { kana: 'ほ', romaji: 'ho' },
-      { kana: 'ま', romaji: 'ma' }, { kana: 'み', romaji: 'mi' }, { kana: 'む', romaji: 'mu' }, { kana: 'め', romaji: 'me' }, { kana: 'も', romaji: 'mo' },
-      { kana: 'や', romaji: 'ya' }, { kana: 'ゆ', romaji: 'yu' }, { kana: 'よ', romaji: 'yo' },
-      { kana: 'ら', romaji: 'ra' }, { kana: 'り', romaji: 'ri' }, { kana: 'る', romaji: 'ru' }, { kana: 'れ', romaji: 're' }, { kana: 'ろ', romaji: 'ro' },
-      { kana: 'わ', romaji: 'wa' }, { kana: 'を', romaji: 'wo' }, { kana: 'ん', romaji: 'n' }
+    const hiraganaCards = [
+      { k:'あ', r:'a' },{ k:'い', r:'i' },{ k:'う', r:'u' },{ k:'え', r:'e' },{ k:'お', r:'o' },
+      { k:'か', r:'ka' },{ k:'き', r:'ki' },{ k:'く', r:'ku' },{ k:'け', r:'ke' },{ k:'こ', r:'ko' },
+      { k:'が', r:'ga' },{ k:'ぎ', r:'gi' },{ k:'ぐ', r:'gu' },{ k:'げ', r:'ge' },{ k:'ご', r:'go' },
+      { k:'さ', r:'sa' },{ k:'し', r:'shi' },{ k:'す', r:'su' },{ k:'せ', r:'se' },{ k:'そ', r:'so' },
+      { k:'ざ', r:'za' },{ k:'じ', r:'ji' },{ k:'ず', r:'zu' },{ k:'ぜ', r:'ze' },{ k:'ぞ', r:'zo' },
+      { k:'た', r:'ta' },{ k:'ち', r:'chi' },{ k:'つ', r:'tsu' },{ k:'て', r:'te' },{ k:'と', r:'to' },
+      { k:'だ', r:'da' },{ k:'ぢ', r:'ji' },{ k:'づ', r:'zu' },{ k:'で', r:'de' },{ k:'ど', r:'do' },
+      { k:'な', r:'na' },{ k:'に', r:'ni' },{ k:'ぬ', r:'nu' },{ k:'ね', r:'ne' },{ k:'の', r:'no' },
+      { k:'は', r:'ha' },{ k:'ひ', r:'hi' },{ k:'ふ', r:'fu' },{ k:'へ', r:'he' },{ k:'ほ', r:'ho' },
+      { k:'ば', r:'ba' },{ k:'び', r:'bi' },{ k:'ぶ', r:'bu' },{ k:'べ', r:'be' },{ k:'ぼ', r:'bo' },
+      { k:'ぱ', r:'pa' },{ k:'ぴ', r:'pi' },{ k:'ぷ', r:'pu' },{ k:'ぺ', r:'pe' },{ k:'ぽ', r:'po' },
+      { k:'ま', r:'ma' },{ k:'み', r:'mi' },{ k:'む', r:'mu' },{ k:'め', r:'me' },{ k:'も', r:'mo' },
+      { k:'や', r:'ya' },{ k:'ゆ', r:'yu' },{ k:'よ', r:'yo' },
+      { k:'ら', r:'ra' },{ k:'り', r:'ri' },{ k:'る', r:'ru' },{ k:'れ', r:'re' },{ k:'ろ', r:'ro' },
+      { k:'わ', r:'wa' },{ k:'を', r:'wo' },{ k:'ん', r:'n' }
     ];
 
+    const katakanaCards = hiraganaCards.map(c => ({
+      k: String.fromCharCode(c.k.charCodeAt(0) + 0x60), r: c.r
+    }));
+
+    let deck = hiraganaCards;
     let current = null;
     let streak = 0;
     let best = Number(localStorage.getItem('bestStreak') || 0);
-    let decay = 0;
-    let decayTimer = null;
 
-    const hiraganaEl = document.getElementById('hiragana');
+    const kanaEl = document.getElementById('kana');
     const input = document.getElementById('answer');
-    const feedback = document.getElementById('feedback');
     const streakEl = document.getElementById('streak');
     const bestEl = document.getElementById('best');
-    const flameEl = document.getElementById('flameBg');
+    
+    const flame = document.getElementById('flameBg');
+    const hint = document.getElementById('hint');
 
     bestEl.textContent = best;
 
     function pickCard() {
-      current = cards[Math.floor(Math.random() * cards.length)];
-      hiraganaEl.textContent = current.kana;
+      current = deck[Math.floor(Math.random() * deck.length)];
+      kanaEl.textContent = current.k;
       input.value = '';
       input.focus();
-      decay = 0;
-
-      clearInterval(decayTimer);
-      decayTimer = setInterval(() => {
-        decay += 0.01;
-        updateFlames(streak, decay);
-      }, 120);
     }
 
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') checkAnswer();
-    });
+    function pulse() {
+      flame.classList.remove('flame-pulse');
+      void flame.offsetWidth;
+      flame.classList.add('flame-pulse');
+    }
 
-    function checkAnswer() {
+    function showHint(text, color) {
+      hint.textContent = text;
+      hint.className = `hint ${color}`;
+      hint.style.animation = 'none';
+      void hint.offsetWidth;
+      hint.style.animation = 'hintFade 1.2s ease-out';
+    }
+
+    input.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
       const val = input.value.trim().toLowerCase();
-      if (!val) return;
 
-      clearInterval(decayTimer);
-      decay = 0;
-
-      if (val === current.romaji) {
+      if (val === current.r) {
         streak++;
-        feedback.textContent = '✓ Correct!';
-        feedback.className = 'feedback correct';
-        navigator.vibrate?.(40);
-
-        flameEl.classList.remove('flame-pulse');
-        void flameEl.offsetWidth;
-        flameEl.classList.add('flame-pulse');
+        pulse();
+        showHint(current.r, 'green');
       } else {
         streak = 0;
-        feedback.textContent = `✗ Wrong - ${current.romaji}`;
-        feedback.className = 'feedback wrong';
-        navigator.vibrate?.([100, 40, 100]);
+        showHint(current.r, 'red');
       }
 
       if (streak > best) {
@@ -244,13 +192,26 @@
         localStorage.setItem('bestStreak', best);
         bestEl.textContent = best;
       }
-
       streakEl.textContent = streak;
-      updateFlames(streak, 0);
       pickCard();
-    }
+    });
 
-    updateFlames(0);
+    document.getElementById('hiraganaBtn').onclick = () => {
+      deck = hiraganaCards;
+      document.getElementById('footer').textContent = '· Kana Campfire · Hiragana Practice';
+      document.getElementById('hiraganaBtn').classList.add('active');
+      document.getElementById('katakanaBtn').classList.remove('active');
+      streak = 0; streakEl.textContent = 0; pickCard();
+    };
+
+    document.getElementById('katakanaBtn').onclick = () => {
+      deck = katakanaCards;
+      document.getElementById('footer').textContent = '· Kana Campfire · Katakana Practice';
+      document.getElementById('katakanaBtn').classList.add('active');
+      document.getElementById('hiraganaBtn').classList.remove('active');
+      streak = 0; streakEl.textContent = 0; pickCard();
+    };
+
     pickCard();
   </script>
 </body>
