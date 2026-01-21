@@ -234,7 +234,7 @@
         flameEl.classList.add('flame-pulse');
       } else {
         streak = 0;
-        feedback.textContent = `✗ Wrong — it was "${current.romaji}"`;
+        feedback.textContent = `✗ Wrong - ${current.romaji}`;
         feedback.className = 'feedback wrong';
         navigator.vibrate?.([100, 40, 100]);
       }
