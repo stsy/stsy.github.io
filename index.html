@@ -28,29 +28,70 @@
       padding: 40px 20px;
       text-align: center;
       box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      position: relative;
+      overflow: hidden;
     }
 
     .hiragana {
       font-size: 96px;
       margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .flame-bg {
+      position: absolute;
+      top: 42%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      font-size: 140px;
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 1;
+      filter: blur(1px);
+      animation: flameIdle 2.8s ease-in-out infinite;
+    }
+
+    @keyframes flameIdle {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.16; }
+      50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.22; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0.16; }
+    }
+
+    @keyframes flamePulse {
+      0% { transform: translate(-50%, -50%) scale(1); }
+      40% { transform: translate(-50%, -50%) scale(1.25); }
+      100% { transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .flame-pulse {
+      animation: flamePulse 0.35s ease-out;
     }
 
     input {
-      width: 70%;
-      padding: 14px;
-      border-radius: 12px;
+      width: 4ch;
+      padding: 10px 12px;
+      border-radius: 10px;
       border: none;
-      font-size: 18px;
+      font-size: 20px;
       text-align: center;
       outline: none;
       background: #1f2038;
       color: #fff;
+      margin: 0 auto;
+      display: block;
     }
 
     .streak {
-      margin-top: 16px;
-      font-size: 16px;
-      opacity: 0.9;
+      margin-top: 18px;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      opacity: 0.95;
+    }
+
+    .streak span {
+      font-weight: 700;
     }
 
     .feedback {
@@ -88,16 +129,47 @@
   <div class="app">
     <h1 class="title">Kana Campfire</h1>
     <p class="subtitle">Hiragana Practice</p>
+
     <div class="card">
+      <div class="flame-bg" id="flameBg">🔥</div>
       <div class="hiragana" id="hiragana">あ</div>
-      <input id="answer" placeholder="Type romaji" autofocus />
+
+      <input
+        id="answer"
+        autofocus
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="none"
+        spellcheck="false"
+        inputmode="latin"
+        maxlength="3"
+      />
+
       <div class="feedback" id="feedback"></div>
-      <div class="streak">🔥 <span id="streak">0</span></div>
+      <div class="streak">Streak: <span id="streak">0</span> · Best: <span id="best">0</span></div>
     </div>
-    <footer>Kana Campfire</footer>
+
+    <footer>· Kana Campfire ·</footer>
   </div>
 
   <script>
+    function updateFlames(streak, decay = 0) {
+      const flame = document.getElementById('flameBg');
+      const baseScale = 1 + Math.min(streak, 12) * 0.12;
+      const scale = Math.max(0.6, baseScale - decay);
+
+      flame.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      flame.style.opacity = Math.max(
+        0.05,
+        Math.min(0.18 + streak * 0.02 - decay * 0.2, 0.45)
+      );
+      flame.style.filter = `blur(${Math.max(0, 2 - streak * 0.1)}px)`;
+
+      if (scale <= 0.65 && streak > 0) {
+        streakEl.textContent = 0;
+      }
+    }
+
     const cards = [
       { kana: 'あ', romaji: 'a' }, { kana: 'い', romaji: 'i' }, { kana: 'う', romaji: 'u' }, { kana: 'え', romaji: 'e' }, { kana: 'お', romaji: 'o' },
       { kana: 'か', romaji: 'ka' }, { kana: 'き', romaji: 'ki' }, { kana: 'く', romaji: 'ku' }, { kana: 'け', romaji: 'ke' }, { kana: 'こ', romaji: 'ko' },
@@ -113,48 +185,72 @@
 
     let current = null;
     let streak = 0;
+    let best = Number(localStorage.getItem('bestStreak') || 0);
+    let decay = 0;
+    let decayTimer = null;
 
     const hiraganaEl = document.getElementById('hiragana');
     const input = document.getElementById('answer');
     const feedback = document.getElementById('feedback');
     const streakEl = document.getElementById('streak');
+    const bestEl = document.getElementById('best');
+    const flameEl = document.getElementById('flameBg');
+
+    bestEl.textContent = best;
 
     function pickCard() {
       current = cards[Math.floor(Math.random() * cards.length)];
       hiraganaEl.textContent = current.kana;
       input.value = '';
       input.focus();
+      decay = 0;
+
+      clearInterval(decayTimer);
+      decayTimer = setInterval(() => {
+        decay += 0.01;
+        updateFlames(streak, decay);
+      }, 120);
     }
 
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        checkAnswer();
-      }
+      if (e.key === 'Enter') checkAnswer();
     });
 
     function checkAnswer() {
       const val = input.value.trim().toLowerCase();
       if (!val) return;
 
+      clearInterval(decayTimer);
+      decay = 0;
+
       if (val === current.romaji) {
         streak++;
-        feedback.textContent = '✓';
+        feedback.textContent = '✓ Correct!';
         feedback.className = 'feedback correct';
         navigator.vibrate?.(40);
+
+        flameEl.classList.remove('flame-pulse');
+        void flameEl.offsetWidth;
+        flameEl.classList.add('flame-pulse');
       } else {
         streak = 0;
-        feedback.textContent = `✗ Riktig: "${current.romaji}"`;
+        feedback.textContent = `✗ Wrong — it was "${current.romaji}"`;
         feedback.className = 'feedback wrong';
         navigator.vibrate?.([100, 40, 100]);
       }
 
+      if (streak > best) {
+        best = streak;
+        localStorage.setItem('bestStreak', best);
+        bestEl.textContent = best;
+      }
+
       streakEl.textContent = streak;
-      setTimeout(() => {
-        feedback.textContent = '';
-        pickCard();
-      }, 900);
+      updateFlames(streak, 0);
+      pickCard();
     }
 
+    updateFlames(0);
     pickCard();
   </script>
 </body>
