@@ -2,114 +2,266 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Kana Campfire</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-
   <style>
+    :root {
+      --safe-bottom: env(safe-area-inset-bottom);
+    }
+
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(180deg, #1e1e2e, #2b2b45);
+      background: radial-gradient(circle at top, #2b2b45, #08080f);
       color: #f5f5f7;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    .app {
+      min-height: 100dvh;
       display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 12px;
+      padding: 12px 14px calc(12px + var(--safe-bottom));
+    }
+
+    /* Top bar */
+    .top-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 2px;
+    }
+
+    .top-bar button {
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      border: none;
+      padding: 10px 6px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background .2s ease, color .2s ease;
+    }
+
+    .top-bar button.active {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+    }
+
+    /* Arena */
+    .arena {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
       justify-content: center;
-      align-items: center;
-      height: 100vh;
+      overflow-y: auto;
+      padding-top: 6px;
     }
 
-    .app { max-width: 420px; padding: 24px; width: 100%; }
-
-    .title { text-align: center; font-size: 28px; margin-bottom: 6px; }
-    .subtitle { text-align: center; font-size: 14px; opacity: 0.7; margin-bottom: 12px; }
-
-    .mode-toggle { display: flex; justify-content: center; gap: 8px; margin-bottom: 18px; }
-    .mode-toggle button {
-      background: #1f2038; color: #f5f5f7; border: none;
-      padding: 6px 12px; border-radius: 999px; font-size: 13px; opacity: 0.6;
-    }
-    .mode-toggle button.active { opacity: 1; background: #35365f; }
-
+    /* Card */
     .card {
-      background: #2f3050; border-radius: 20px; padding: 40px 20px;
-      text-align: center; position: relative; overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 420px;
+      background: linear-gradient(180deg, #2f3050, #16162d);
+      border-radius: 10px;
+      padding: 28px 16px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
     }
 
-    .hiragana {
-      font-family: "Noto Sans JP", system-ui, sans-serif;
-      font-size: 96px; margin-bottom: 20px; position: relative; z-index: 2;
+    /* Status */
+    .combo {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      font-size: 13px;
+      opacity: 0;
+      transform: scale(.9);
+      transition: opacity .25s, transform .25s;
+      color: #9dffb3;
+      z-index: 5;
     }
 
+    .combo.active { opacity: 1; transform: scale(1.25); }
+
+    .boss {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      font-size: 12px;
+      color: #ff7c7c;
+      opacity: 0;
+      transition: opacity .3s;
+      z-index: 5;
+    }
+
+    .boss.active { opacity: 1; }
+
+    /* Flame */
     .flame-bg {
-      position: absolute; top: 42%; left: 50%;
-      transform: translate(-50%, -50%); font-size: 140px;
-      opacity: 0.18; pointer-events: none; z-index: 1;
-      animation: flameIdle 2.8s ease-in-out infinite;
+      position: absolute;
+      top: 42%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 180px;
+      opacity: 0.22;
+      pointer-events: none;
+      z-index: 1;
+      animation: flameIdle 2.4s ease-in-out infinite;
     }
 
     @keyframes flameIdle {
-      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.16; }
-      50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.22; }
-      100% { transform: translate(-50%, -50%) scale(1); opacity: 0.16; }
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.18; }
+      50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.3; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0.18; }
     }
 
     @keyframes flamePulse {
       0% { transform: translate(-50%, -50%) scale(1); }
-      40% { transform: translate(-50%, -50%) scale(1.25); }
+      35% { transform: translate(-50%, -50%) scale(1.4); }
       100% { transform: translate(-50%, -50%) scale(1); }
     }
 
-    .flame-pulse { animation: flamePulse 0.35s ease-out; }
+    .flame-pulse { animation: flamePulse 0.28s ease-out; }
 
-    input {
-      width: 4ch; padding: 10px 12px; border-radius: 10px; border: none;
-      font-size: 20px; text-align: center; background: #1f2038; color: #fff;
-      margin: 0 auto; display: block; outline: none;
+    /* Kana */
+    .kana {
+      font-size: min(42vw, 120px);
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 4;
+      transition: transform .15s ease;
     }
 
-    .streak { margin-top: 18px; font-size: 17px; font-weight: 600; }
+    .kana.pop { transform: scale(1.12); }
 
+    /* Hint */
     .hint {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      font-family: "Noto Sans JP", system-ui, sans-serif;
-      font-size: 48px; opacity: 0; pointer-events: none;
-      z-index: 0;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: min(24vw, 68px);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 3;
     }
 
-    .hint.red { color: rgba(255, 80, 80, 0.55); }
-    .hint.green { color: rgba(120, 255, 160, 0.45); }
+    .hint.red { color: rgba(255, 90, 90, 0.65); }
+    .hint.green { color: rgba(140, 255, 180, 0.55); }
 
     @keyframes hintFade {
-      0% { opacity: 0; transform: translateY(6px); }
-      20% { opacity: 0.35; transform: translateY(0); }
-      80% { opacity: 0.35; }
-      100% { opacity: 0; transform: translateY(-4px); }
+      0% { opacity: 0; transform: scale(.8) translateY(18px); }
+      30% { opacity: .6; transform: scale(1.15) translateY(0); }
+      80% { opacity: .5; }
+      100% { opacity: 0; transform: scale(1.2) translateY(-14px); }
     }
 
-    footer { margin-top: 24px; text-align: center; opacity: 0.6; font-size: 12px; }
+    /* Input */
+    .input-zone {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+    }
+
+    input {
+      width: 4ch;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 22px;
+      text-align: center;
+      background: #0f1024;
+      color: #fff;
+      outline: none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+    }
+
+    .streak {
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: .85;
+    }
+
+    footer {
+      text-align: center;
+      opacity: .45;
+      font-size: 11px;
+    }
+
+    .keyboard-open footer { display: none; }
+
+    .shake { animation: shake .22s linear; }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-4px); }
+      100% { transform: translateX(0); }
+    }
+
+    /* Desktop polish */
+    @media (min-width: 768px) {
+      .app {
+        max-width: 520px;
+        margin: 0 auto;
+      }
+
+      .card {
+        padding: 36px 24px 30px;
+      }
+
+      .kana {
+        font-size: 128px;
+      }
+
+      input {
+        font-size: 24px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="app">
-    
 
-    <div class="mode-toggle">
+    <div class="top-bar">
       <button id="hiraganaBtn" class="active">Hiragana</button>
       <button id="katakanaBtn">Katakana</button>
     </div>
 
-    <div class="card">
-      <div class="flame-bg" id="flameBg">🔥</div>
-      <div class="hiragana" id="kana">あ</div>
-      <div class="hint" id="hint"></div>
+    <div class="arena">
+      <div class="card" id="card">
+        <div class="combo" id="combo"></div>
+        <div class="boss" id="boss">BOSS</div>
+        <div class="flame-bg" id="flameBg">🔥</div>
+        <div class="kana" id="kana">あ</div>
+        <div class="hint" id="hint"></div>
 
-      <input id="answer" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="latin" maxlength="3" />
+        <div class="input-zone">
+          <input id="answer" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="latin" maxlength="3" />
+        </div>
 
-      <div class="streak">Streak: <span id="streak">0</span> · Best: <span id="best">0</span></div>
+        <div class="streak">Streak: <span id="streak">0</span> · Best: <span id="best">0</span></div>
+      </div>
     </div>
 
     <footer id="footer">· Kana Campfire · Hiragana Practice</footer>
@@ -119,24 +271,17 @@
     const hiraganaCards = [
       { k:'あ', r:'a' },{ k:'い', r:'i' },{ k:'う', r:'u' },{ k:'え', r:'e' },{ k:'お', r:'o' },
       { k:'か', r:'ka' },{ k:'き', r:'ki' },{ k:'く', r:'ku' },{ k:'け', r:'ke' },{ k:'こ', r:'ko' },
-      { k:'が', r:'ga' },{ k:'ぎ', r:'gi' },{ k:'ぐ', r:'gu' },{ k:'げ', r:'ge' },{ k:'ご', r:'go' },
       { k:'さ', r:'sa' },{ k:'し', r:'shi' },{ k:'す', r:'su' },{ k:'せ', r:'se' },{ k:'そ', r:'so' },
-      { k:'ざ', r:'za' },{ k:'じ', r:'ji' },{ k:'ず', r:'zu' },{ k:'ぜ', r:'ze' },{ k:'ぞ', r:'zo' },
       { k:'た', r:'ta' },{ k:'ち', r:'chi' },{ k:'つ', r:'tsu' },{ k:'て', r:'te' },{ k:'と', r:'to' },
-      { k:'だ', r:'da' },{ k:'ぢ', r:'ji' },{ k:'づ', r:'zu' },{ k:'で', r:'de' },{ k:'ど', r:'do' },
       { k:'な', r:'na' },{ k:'に', r:'ni' },{ k:'ぬ', r:'nu' },{ k:'ね', r:'ne' },{ k:'の', r:'no' },
       { k:'は', r:'ha' },{ k:'ひ', r:'hi' },{ k:'ふ', r:'fu' },{ k:'へ', r:'he' },{ k:'ほ', r:'ho' },
-      { k:'ば', r:'ba' },{ k:'び', r:'bi' },{ k:'ぶ', r:'bu' },{ k:'べ', r:'be' },{ k:'ぼ', r:'bo' },
-      { k:'ぱ', r:'pa' },{ k:'ぴ', r:'pi' },{ k:'ぷ', r:'pu' },{ k:'ぺ', r:'pe' },{ k:'ぽ', r:'po' },
       { k:'ま', r:'ma' },{ k:'み', r:'mi' },{ k:'む', r:'mu' },{ k:'め', r:'me' },{ k:'も', r:'mo' },
       { k:'や', r:'ya' },{ k:'ゆ', r:'yu' },{ k:'よ', r:'yo' },
       { k:'ら', r:'ra' },{ k:'り', r:'ri' },{ k:'る', r:'ru' },{ k:'れ', r:'re' },{ k:'ろ', r:'ro' },
       { k:'わ', r:'wa' },{ k:'を', r:'wo' },{ k:'ん', r:'n' }
     ];
 
-    const katakanaCards = hiraganaCards.map(c => ({
-      k: String.fromCharCode(c.k.charCodeAt(0) + 0x60), r: c.r
-    }));
+    const katakanaCards = hiraganaCards.map(c => ({ k: String.fromCharCode(c.k.charCodeAt(0) + 0x60), r: c.r }));
 
     let deck = hiraganaCards;
     let current = null;
@@ -147,15 +292,20 @@
     const input = document.getElementById('answer');
     const streakEl = document.getElementById('streak');
     const bestEl = document.getElementById('best');
-    
     const flame = document.getElementById('flameBg');
     const hint = document.getElementById('hint');
+    const comboEl = document.getElementById('combo');
+    const bossEl = document.getElementById('boss');
+    const card = document.getElementById('card');
 
     bestEl.textContent = best;
 
     function pickCard() {
       current = deck[Math.floor(Math.random() * deck.length)];
       kanaEl.textContent = current.k;
+      kanaEl.classList.remove('pop');
+      void kanaEl.offsetWidth;
+      kanaEl.classList.add('pop');
       input.value = '';
       input.focus();
     }
@@ -166,12 +316,26 @@
       flame.classList.add('flame-pulse');
     }
 
+    flame.addEventListener('animationend', e => {
+      if (e.animationName === 'flamePulse') flame.classList.remove('flame-pulse');
+    });
+
     function showHint(text, color) {
       hint.textContent = text;
-      hint.className = `hint ${color}`;
+      hint.className = 'hint ' + color;
       hint.style.animation = 'none';
-      void hint.offsetWidth;
-      hint.style.animation = 'hintFade 1.2s ease-out';
+      void hint.offsetHeight;
+      hint.style.animation = 'hintFade 1.1s cubic-bezier(.15,.9,.2,1)';
+    }
+
+    function updateCombo() {
+      if (streak >= 3) {
+        comboEl.textContent = 'Combo x' + streak;
+        comboEl.classList.add('active');
+      } else comboEl.classList.remove('active');
+
+      if (streak >= 20) bossEl.classList.add('active');
+      else bossEl.classList.remove('active');
     }
 
     input.addEventListener('keydown', e => {
@@ -185,6 +349,8 @@
       } else {
         streak = 0;
         showHint(current.r, 'red');
+        card.classList.add('shake');
+        setTimeout(() => card.classList.remove('shake'), 220);
       }
 
       if (streak > best) {
@@ -192,7 +358,9 @@
         localStorage.setItem('bestStreak', best);
         bestEl.textContent = best;
       }
+
       streakEl.textContent = streak;
+      updateCombo();
       pickCard();
     });
 
@@ -201,7 +369,7 @@
       document.getElementById('footer').textContent = '· Kana Campfire · Hiragana Practice';
       document.getElementById('hiraganaBtn').classList.add('active');
       document.getElementById('katakanaBtn').classList.remove('active');
-      streak = 0; streakEl.textContent = 0; pickCard();
+      streak = 0; streakEl.textContent = 0; updateCombo(); pickCard();
     };
 
     document.getElementById('katakanaBtn').onclick = () => {
@@ -209,8 +377,20 @@
       document.getElementById('footer').textContent = '· Kana Campfire · Katakana Practice';
       document.getElementById('katakanaBtn').classList.add('active');
       document.getElementById('hiraganaBtn').classList.remove('active');
-      streak = 0; streakEl.textContent = 0; pickCard();
+      streak = 0; streakEl.textContent = 0; updateCombo(); pickCard();
     };
+
+    // Keyboard handling
+    if (window.visualViewport) {
+      visualViewport.addEventListener('resize', () => {
+        const keyboardOpen = visualViewport.height < window.innerHeight - 100;
+        document.body.classList.toggle('keyboard-open', keyboardOpen);
+        const bottom = keyboardOpen
+          ? (window.innerHeight - visualViewport.height) + 'px'
+          : 'env(safe-area-inset-bottom)';
+        document.documentElement.style.setProperty('--safe-bottom', bottom);
+      });
+    }
 
     pickCard();
   </script>
